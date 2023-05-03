@@ -33,7 +33,7 @@ resource "aws_iam_role" "ecs_role" {
 data "template_file" "template_container_definitions" {
   template = "${file("${path.module}/definition.json.tpl")}"
 
-  vars {
+  vars = {
     family              = "${var.family}"
     name                = "${var.app_name}"
     version             = "${var.image_version}"
