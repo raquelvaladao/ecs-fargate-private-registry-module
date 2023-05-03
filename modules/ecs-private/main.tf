@@ -31,7 +31,7 @@ resource "aws_iam_role" "ecs_role" {
 
 # Json com as task definitions
 data "template_file" "template_container_definitions" {
-  template = "${file("${module.path}/definition.json.tpl")}"
+  template = "${file("${path.module}/definition.json.tpl")}"
 
   vars {
     family              = "${var.family}"
