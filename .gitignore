@@ -1,0 +1,3 @@
+modules/ecs-private/env.json
+modules/ecs-private/variables.auto.tfvars
+variables.auto.tfvars
