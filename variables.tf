@@ -8,6 +8,9 @@ variable "secret_key" {
 
 
 # ECS Task definition
+variable "gitlab_access_key" {
+  description = "Access Key do seu repositórido do Gitlab com permissões mínimas para acessar o registry privado"
+}
 variable "app_name" {
   description = "Nome do container"
   default = "textract"
