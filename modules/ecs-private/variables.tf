@@ -3,17 +3,7 @@ variable "gitlab_access_key" {
 }
 
 # ECS Task Definition
-variable "app_name" {
-  description = "Nome do container"
-  default = "textract"
-}
-variable "registry" {
-  description = "URL do registry privado da aplicação"
-}
-variable "family" {
-  description = "Family da task definition"
-}
-variable "image_version" {
-  description = "Versão da imagem do container no container registry"
-  default = "latest"
-}
+variable "app_name" {}
+variable "registry" {}
+variable "family" {}
+variable "image_version" {}

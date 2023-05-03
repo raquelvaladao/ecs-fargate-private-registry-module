@@ -23,9 +23,9 @@ provider "aws" {
 module "ecs-private" {
   source = "./modules/ecs-private"
 
-  gitlab_access_key = ""
-  app_name = ""
-  registry = ""
-  family = ""
-  image_version = ""
+  gitlab_access_key = "${var.gitlab_access_key}"
+  app_name = "${var.app_name}"
+  registry = "${var.registry}"
+  family = "${var.family}"
+  image_version = "${var.image_version}"
 }
