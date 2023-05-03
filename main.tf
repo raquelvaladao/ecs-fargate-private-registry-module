@@ -19,7 +19,7 @@ provider "aws" {
 }
 
 
-# Cria Task Definition com o container de um registry privado (Gitlab)
+# Cria Task Definition com o container de um registry privado (Gitlab) e suas ecs roles
 module "ecs-private" {
   source = "./modules/ecs-private"
 

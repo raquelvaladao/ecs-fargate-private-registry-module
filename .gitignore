@@ -3,3 +3,5 @@ modules/ecs-private/variables.auto.tfvars
 variables.auto.tfvars
 .terraform.*
 .terraform/*
+plan*
+terraform.*
