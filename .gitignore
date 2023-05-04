@@ -5,3 +5,4 @@ variables.auto.tfvars
 .terraform/*
 plan*
 terraform.*
+.terraform.lock.hcl
