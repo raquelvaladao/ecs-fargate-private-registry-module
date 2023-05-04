@@ -3,6 +3,7 @@
 resource "aws_secretsmanager_secret" "container_registry_secret" {
   name = "gitlab-registry-credentials"
   description = "Access key com permissão read_registry e write_registry"
+  recovery_window_in_days = 0
   tags = {
     App = "textract"
   }
@@ -95,7 +96,26 @@ resource "aws_ecs_task_definition" "textract_task_definition" {
 
 
 # Cluster que será associado ao task set rodável
-# TO DO
+resource "aws_ecs_cluster" "ecs_cluster" {
+  name = "${var.ecs_cluster_name}"
+  # default vpc e subnets
+}
 
-# Task set rodável (a rodar na pipeline)
-# TO DO
+# # Service da task
+# resource "aws_ecs_service" "mongo" {
+#   name            = "mongodb"
+#   cluster         = aws_ecs_cluster.foo.id
+#   task_definition = aws_ecs_task_definition.mongo.arn
+#   desired_count   = 3
+#   iam_role        = aws_iam_role.foo.arn
+#   depends_on      = [aws_iam_role_policy.foo]
+# }
+
+# # Task set rodável (a rodar na pipeline)
+# resource "aws_ecs_task_set" "example" {
+#   service         = 
+#   cluster         = aws_ecs_cluster.ecs_cluster.id
+#   task_definition = aws_ecs_task_definition.textract_task_definition.arn
+
+#   force_delete    = true
+# }

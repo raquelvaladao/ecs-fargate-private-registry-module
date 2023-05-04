@@ -25,3 +25,7 @@ variable "image_version" {
   description = "Versão da imagem do container no container registry"
   default = "latest"
 }
+variable "ecs_cluster_name" {
+  description = "Nome do cluster ECS"
+  default = "textract-cluster"
+}

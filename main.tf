@@ -28,5 +28,5 @@ module "ecs-private" {
   registry = "${var.registry}"
   family = "${var.family}"
   image_version = "${var.image_version}"
-
+  ecs_cluster_name = "${var.ecs_cluster_name}"
 }
