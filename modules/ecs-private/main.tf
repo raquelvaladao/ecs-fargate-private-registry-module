@@ -4,9 +4,6 @@ resource "aws_secretsmanager_secret" "container_registry_secret" {
   name = "gitlab-registry-credentials"
   description = "Access key com permissão read_registry e write_registry"
   recovery_window_in_days = 0
-  tags = {
-    App = "textract"
-  }
 }
 
 # Dado do secret anterior
@@ -22,7 +19,7 @@ data "aws_iam_policy_document" "assume_role_policy" {
     principals {
       type = "Service"
       identifiers = [
-        "ecs-tasks.amazonaws.com"
+        "ecs-tasks.amazonaws.com", "ecs.amazonaws.com"
       ]
     }
   }
@@ -43,8 +40,18 @@ data "aws_iam_policy_document" "policy_document" {
   }
   statement {
     effect = "Allow"
-    actions   = ["logs:CreateLogStream"]
-    resources = ["*"]
+    actions   = [
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:PutMetricData",
+        "ec2:DescribeTags",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:DescribeLogStreams",
+        "logs:PutSubscriptionFilter",
+        "logs:PutLogEvents"
+        ]
+    resources = ["arn:aws:logs:*:*:*"]
   }
 }
 # Policy com permissão para Secrets Manager
@@ -87,18 +94,18 @@ locals {
       ]
       logConfiguration = {
         logDriver = "awslogs"
-        
+
         options = {
           awslogs-group = aws_cloudwatch_log_group.log_group.name
           awslogs-region = "sa-east-1"
-          awslogs-stream-prefix = var.family
+          awslogs-stream-prefix = aws_cloudwatch_log_stream.log_stream.name
         }
       }
     }
   ]
 } 
 # TASK definition do container, necessita de uma role que consiga ler do secrets manager,
-resource "aws_ecs_task_definition" "textract_task_definition" {
+resource "aws_ecs_task_definition" "app_task_definition" {
   family = "${var.family}"
   cpu = 1024
   memory = 2048
@@ -124,10 +131,10 @@ resource "aws_ecs_service" "service" {
   name                = "${var.app_name}"
   cluster             = aws_ecs_cluster.ecs_cluster.id
   desired_count       = "${var.desired_count}"
-  task_definition     = aws_ecs_task_definition.textract_task_definition.arn
+  task_definition     = aws_ecs_task_definition.app_task_definition.arn
   scheduling_strategy = "REPLICA"
 
-  deployment_minimum_healthy_percent = 50
+  deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
 
   force_new_deployment = true
@@ -139,12 +146,13 @@ resource "aws_ecs_service" "service" {
     subnets         = "${var.subnet_ids}" #tem que ter HTTP/80 e HTTPS/443 liberados para acessar o secret manager
     assign_public_ip = true
   }
-
-  triggers = {
-    update = timestamp() 
-  }
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {
-  name = "log-group"
+  name = "${var.app_name}-group"
+}
+
+resource "aws_cloudwatch_log_stream" "log_stream" {
+  name           = "${var.app_name}-stream"
+  log_group_name = aws_cloudwatch_log_group.log_group.name
 }

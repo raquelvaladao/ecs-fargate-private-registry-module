@@ -21,7 +21,7 @@ variable "gitlab_credentials" {
 
 variable "app_name" {
   description = "Nome do container"
-  default = "textract"
+  default = "app"
 }
 variable "registry" {
   description = "URL do registry privado da aplicação"
@@ -35,7 +35,7 @@ variable "image_version" {
 }
 variable "ecs_cluster_name" {
   description = "Nome do cluster ECS"
-  default = "textract-cluster"
+  default = "app-cluster"
 }
 
 # Service
