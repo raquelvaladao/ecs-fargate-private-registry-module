@@ -9,11 +9,11 @@ Fiz esse projeto para automatizar a criação de um side-project pessoal meu em 
 ## Sumário
 - [Pré-requisitos](#pré-requisitos)
 - [Uso](#uso)
-- [Recursos Criados](#Recursos-Criados)
-- [Inputs](#Inputs)
-- [Outputs](#Outputs)
-- [Exemplo TFVARS](#Exemplo-TFVARS)
-- [Observações](#Observações)
+- [Recursos Criados](#recursos-criados)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
+- [Exemplo TFVARS](#exemplo-tfvars)
+- [Observações](#observações)
 
 ## Pré-requisitos
 
