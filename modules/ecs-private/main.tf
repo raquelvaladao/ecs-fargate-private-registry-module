@@ -12,7 +12,7 @@ resource "aws_secretsmanager_secret" "container_registry_secret" {
 # Dado do secret anterior
 resource "aws_secretsmanager_secret_version" "container_registry_secret_data" {
   secret_id     = aws_secretsmanager_secret.container_registry_secret.id
-  secret_string = var.gitlab_access_key
+  secret_string = jsonencode(var.gitlab_credentials)
 }
 
 data "aws_iam_policy_document" "assume_role_policy" {
@@ -41,6 +41,11 @@ data "aws_iam_policy_document" "policy_document" {
     actions   = ["secretsmanager:GetSecretValue"]
     resources = [aws_secretsmanager_secret.container_registry_secret.arn]
   }
+  statement {
+    effect = "Allow"
+    actions   = ["logs:CreateLogStream"]
+    resources = ["*"]
+  }
 }
 # Policy com permissão para Secrets Manager
 resource "aws_iam_policy" "policy" {
@@ -67,8 +72,6 @@ locals {
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.container_registry_secret.arn
       }
-      cpu = 10
-      memory = 512
       portMappings = [
         {
           containerPort = 8080
@@ -82,18 +85,34 @@ locals {
           value = env.value
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        
+        options = {
+          awslogs-group = aws_cloudwatch_log_group.log_group.name
+          awslogs-region = "sa-east-1"
+          awslogs-stream-prefix = var.family
+        }
+      }
     }
   ]
 } 
 # TASK definition do container, necessita de uma role que consiga ler do secrets manager,
-# além das env vars (file)
 resource "aws_ecs_task_definition" "textract_task_definition" {
   family = "${var.family}"
-  # container_definitions = data.template_file.template_container_definitions.rendered
+  cpu = 1024
+  memory = 2048
   execution_role_arn = aws_iam_role.ecs_role.arn
   container_definitions = jsonencode(local.container_definitions)
-}
 
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+}
 
 # Cluster que será associado ao task set rodável
 resource "aws_ecs_cluster" "ecs_cluster" {
@@ -101,21 +120,31 @@ resource "aws_ecs_cluster" "ecs_cluster" {
   # default vpc e subnets
 }
 
-# # Service da task
-# resource "aws_ecs_service" "mongo" {
-#   name            = "mongodb"
-#   cluster         = aws_ecs_cluster.foo.id
-#   task_definition = aws_ecs_task_definition.mongo.arn
-#   desired_count   = 3
-#   iam_role        = aws_iam_role.foo.arn
-#   depends_on      = [aws_iam_role_policy.foo]
-# }
+resource "aws_ecs_service" "service" {
+  name                = "${var.app_name}"
+  cluster             = aws_ecs_cluster.ecs_cluster.id
+  desired_count       = "${var.desired_count}"
+  task_definition     = aws_ecs_task_definition.textract_task_definition.arn
+  scheduling_strategy = "REPLICA"
 
-# # Task set rodável (a rodar na pipeline)
-# resource "aws_ecs_task_set" "example" {
-#   service         = 
-#   cluster         = aws_ecs_cluster.ecs_cluster.id
-#   task_definition = aws_ecs_task_definition.textract_task_definition.arn
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 100
 
-#   force_delete    = true
-# }
+  force_new_deployment = true
+  launch_type = "FARGATE"
+  platform_version = "LATEST"
+
+  network_configuration {
+    security_groups = "${var.security_group_ids}"
+    subnets         = "${var.subnet_ids}" #tem que ter HTTP/80 e HTTPS/443 liberados para acessar o secret manager
+    assign_public_ip = true
+  }
+
+  triggers = {
+    update = timestamp() 
+  }
+}
+
+resource "aws_cloudwatch_log_group" "log_group" {
+  name = "log-group"
+}

@@ -23,10 +23,18 @@ provider "aws" {
 module "ecs-private" {
   source = "./modules/ecs-private"
 
-  gitlab_access_key = "${var.gitlab_access_key}"
+  # Task definition
+  gitlab_credentials = "${var.gitlab_credentials}"
   app_name = "${var.app_name}"
   registry = "${var.registry}"
   family = "${var.family}"
   image_version = "${var.image_version}"
+
+  # Cluster
   ecs_cluster_name = "${var.ecs_cluster_name}"
+
+  # Service
+  desired_count = "${var.desired_count}"
+  subnet_ids = "${var.subnet_ids}"
+  security_group_ids = "${var.security_group_ids}"
 }
