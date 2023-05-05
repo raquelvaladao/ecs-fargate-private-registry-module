@@ -18,6 +18,7 @@ provider "aws" {
   secret_key = var.secret_key
 }
 
+<<<<<<< HEAD
 module "ecs-private" {
   source = "./modules/ecs-private"
 
@@ -25,16 +26,32 @@ module "ecs-private" {
 
   # Task definition
   registry_credentials = "${var.registry_credentials}"
+=======
+
+# Cria Task Definition com o container de um registry privado (Gitlab) e suas ecs roles
+module "ecs-private" {
+  source = "./modules/ecs-private"
+
+  # Task definition
+  gitlab_credentials = "${var.gitlab_credentials}"
+>>>>>>> 01a16bf918ac4196fd6a631325fb259d92f4c1f5
   app_name = "${var.app_name}"
   registry = "${var.registry}"
   family = "${var.family}"
   image_version = "${var.image_version}"
+<<<<<<< HEAD
   container_port = "${var.container_port}"
   host_port = "${var.host_port}"
   cpu = "${var.cpu}"
   memory = "${var.memory}"
   # Cluster
   ecs_cluster_name = "${var.ecs_cluster_name}"
+=======
+
+  # Cluster
+  ecs_cluster_name = "${var.ecs_cluster_name}"
+
+>>>>>>> 01a16bf918ac4196fd6a631325fb259d92f4c1f5
   # Service
   desired_count = "${var.desired_count}"
   subnet_ids = "${var.subnet_ids}"

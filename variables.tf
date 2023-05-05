@@ -8,9 +8,15 @@ variable "secret_key" {
 
 
 # ECS Task definition
+<<<<<<< HEAD
 variable "registry_credentials" {
   description = "Credenciais (username e access key) do seu repositórido do registry privado com permissões mínimas para acessar o registry"
   sensitive = true
+=======
+variable "gitlab_credentials" {
+  description = "Credenciais (username e access key) do seu repositórido do Gitlab com permissões mínimas para acessar o registry privado"
+
+>>>>>>> 01a16bf918ac4196fd6a631325fb259d92f4c1f5
   default = {
     username = "value1"
     password = "value2"
@@ -43,14 +49,23 @@ variable "desired_count" {
   description = "Número de containers da task"
   default = 1
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 01a16bf918ac4196fd6a631325fb259d92f4c1f5
 variable "subnet_ids" {
   description = "Ids das suas subnets nas quais a tas será deployada"
   default = []
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 01a16bf918ac4196fd6a631325fb259d92f4c1f5
 variable "security_group_ids" {
   description = "Ids dos security groups utilizados"
   default = []
 }
+<<<<<<< HEAD
 variable "region" {
   description = "Region dos recursos do module"
   default = "sa-east-1"
@@ -71,3 +86,5 @@ variable "memory" {
   description = "Memória (MiB) do container"
   default = 2048
 }
+=======
+>>>>>>> 01a16bf918ac4196fd6a631325fb259d92f4c1f5
