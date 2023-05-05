@@ -85,12 +85,13 @@ ecs_cluster_name = "app-cluster"
 
 ## Outputs
 
-Liste e descreva as principais saídas fornecidas pelo módulo Terraform.
+Listando e descrevendo as principais saídas fornecidas pelo module.
 
 | Saída     | Descrição                   |
 | --------- | --------------------------- |
 | ecs_policy   | Policy atachada no ECS para acesso ao Secrets Manager e CloudWatch Logs      |
 | task_revision  | Revision do service que será deployado no apply        |
+| container_definitions  | Resultado do task_definitions.json. Está marcado como *sensitive* |
 
 
 ## Observações
@@ -106,6 +107,7 @@ Liste e descreva as principais saídas fornecidas pelo módulo Terraform.
 também é possível não passar nenhum argumento.
 
 ## WIP.
+- [x] ECS Private Registry e CloudWatch Logs
 - [ ] CloudFront distribution
 - [ ] RDS
 - [ ] Cognito pool
