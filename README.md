@@ -57,7 +57,7 @@ terraform apply pl
 | cpu | CPU Units do container     |
 | memory | Memória em MiB do container     |
 | registry | URL do registry privado em que está a imagem do container     |
-| image_version | version da imagem do container no registry. **A mudança de image_version com o uso de terraform apply já faz o redeploy automaticamente**     |
+| image_version | version da imagem do container no registry. A mudança de image_version com o uso de terraform apply já faz o redeploy automaticamente     |
 | family | Nome da family     |
 | ecs_cluster_name | Nome do cluster     |
 | desired_count | Qtd de containers     |
