@@ -67,9 +67,9 @@ terraform apply pl
  
 ## Exemplo TFVARS
 ```terraform
-gitlab_credentials = {
+registry_credentials = {
   username = "username"
-  password = "access_key_ou_password"
+  password = "access_key_or_password"
 }
 registry = "registry.gitlab.com/xxx/app/name"
 family = "app-family"
