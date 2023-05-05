@@ -33,6 +33,8 @@ module "ecs-private" {
   host_port = "${var.host_port}"
   cpu = "${var.cpu}"
   memory = "${var.memory}"
+  s3_env_file_arns = "${var.s3_env_file_arns}"
+
   # Cluster
   ecs_cluster_name = "${var.ecs_cluster_name}"
   # Service

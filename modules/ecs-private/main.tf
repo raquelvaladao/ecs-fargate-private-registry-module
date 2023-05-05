@@ -1,7 +1,7 @@
 
 resource "aws_secretsmanager_secret" "container_registry_secret" {
   name = "registry-credentials"
-  description = "Access key com permissão read_registry e write_registry"
+  description = "Credenciais com permissão read_registry e write_registry"
   recovery_window_in_days = 0
 }
 
@@ -68,7 +68,8 @@ resource "aws_iam_role_policy_attachment" "ecs_role_attachment" {
 }
 
 locals {
-  env_vars = fileexists("${path.module}/env.json") ? jsondecode(file("${path.module}/env.json")) : null
+  env_vars = try(jsondecode(file("${path.module}/env.json")), null)
+  s3_env_file_arns = try(var.s3_env_file_arns, null)
 
   container_definitions = [
     {
@@ -84,13 +85,18 @@ locals {
         }
       ]
       essential = true
-      environment = [
+      environment = local.env_vars == null ? null : [
         for env in local.env_vars : {
           name  = env.name
           value = env.value
         }
       ]
-      environmentFiles = []
+      environmentFiles = local.s3_env_file_arns == null ? null : [
+        for arn in local.s3_env_file_arns : {
+          value  = arn
+          type   = "s3"
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
 

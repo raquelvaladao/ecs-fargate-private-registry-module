@@ -19,6 +19,14 @@ variable "registry_credentials" {
   type = map(string)
 }
 
+variable "s3_env_file_arns" {
+  description = "Lista de ARNs do arquivo .env do S3. Ex.: arn:aws:s3:::s3_bucket_name/file.env"
+  sensitive = true
+  default = null
+  type = list(string)
+}
+
+
 variable "app_name" {
   description = "Nome do container"
   default = "app"

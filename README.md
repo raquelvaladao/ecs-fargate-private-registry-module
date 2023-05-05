@@ -1,4 +1,4 @@
-# Backend no ECS/Fargate com Private Registry e logs no CloudWatch
+# Container no ECS/Fargate com Private Registry e logs no CloudWatch
 
 Este é um módulo para subir um service de ECS-Fargate funcional e rodando no ECS a partir de uma imagem de um registry privado, com a configuração adequada de logs no CloudWatch Logs do container.
 
@@ -56,6 +56,7 @@ terraform apply pl
 | host_port | Porta do host     |
 | cpu | CPU Units do container     |
 | memory | Memória em MiB do container     |
+| s3_env_file_arns | Lista de ARNs dos arquivos .env que serão passados ao container. Opcional     |
 | registry | URL do registry privado em que está a imagem do container     |
 | image_version | version da imagem do container no registry. A mudança de image_version com o uso de terraform apply já faz o redeploy automaticamente     |
 | family | Nome da family     |
@@ -93,7 +94,7 @@ Liste e descreva as principais saídas fornecidas pelo módulo Terraform.
 
 
 ## Observações
-- variáveis de ambiente passadas pra o container precisam ser definidas em um arquivo env.json (por enquanto é obrigatório), na forma
+- variáveis de ambiente passadas pra o container podem ser definidas na variable **s3_env_file_arns**, como lista dos ARNs dos env files no seu S3 e/ou em um arquivo **./modules/ecs-private/env.json**, opcionalmente, na forma
 ```json
 [
     {
@@ -102,7 +103,9 @@ Liste e descreva as principais saídas fornecidas pelo módulo Terraform.
     }
 ]
 ```
+também é possível não passar nenhum argumento.
 
 ## WIP.
-- [ ] Tornar env.json opcional
-- [ ] Mover region para variables
+- [ ] CloudFront distribution
+- [ ] RDS
+- [ ] Cognito pool
