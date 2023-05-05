@@ -47,12 +47,17 @@ terraform apply pl
 
 | Variável   | Descrição                   |
 | ---------- | --------------------------- |
+| region | Region em que os recursos serão criados.     |
 | access_key | Access key do user AWS que irá performar as ações desse repositório.     |
 | secret_key | Secret key do user AWS     |
 | gitlab_credentials | Username e Access Key do seu registry privado. eu usei o Gitlab.     |
 | app_name | Nome da task definition     |
+| container_port | Porta do container     |
+| host_port | Porta do host     |
+| cpu | CPU Units do container     |
+| memory | Memória em MiB do container     |
 | registry | URL do registry privado em que está a imagem do container     |
-| image_version | version da imagem do container no registry. A mudança de image_version com o uso de terraform apply já faz o redeploy automaticamente     |
+| image_version | version da imagem do container no registry. **A mudança de image_version com o uso de terraform apply já faz o redeploy automaticamente**     |
 | family | Nome da family     |
 | ecs_cluster_name | Nome do cluster     |
 | desired_count | Qtd de containers     |

@@ -1,15 +1,13 @@
 
-# Metadata do secret que guarda as credenciais do container registry no Gitlab
 resource "aws_secretsmanager_secret" "container_registry_secret" {
-  name = "gitlab-registry-credentials"
+  name = "registry-credentials"
   description = "Access key com permissão read_registry e write_registry"
   recovery_window_in_days = 0
 }
 
-# Dado do secret anterior
 resource "aws_secretsmanager_secret_version" "container_registry_secret_data" {
   secret_id     = aws_secretsmanager_secret.container_registry_secret.id
-  secret_string = jsonencode(var.gitlab_credentials)
+  secret_string = jsonencode(var.registry_credentials)
 }
 
 data "aws_iam_policy_document" "assume_role_policy" {
@@ -25,13 +23,13 @@ data "aws_iam_policy_document" "assume_role_policy" {
   }
 }
 
-# Role para acessar o Secrets Manager
+# ECS Role
 resource "aws_iam_role" "ecs_role" {
   name = "ecs_role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
-# Json policy documento
+# ECS Role Policy
 data "aws_iam_policy_document" "policy_document" {
   statement {
     effect = "Allow"
@@ -54,11 +52,11 @@ data "aws_iam_policy_document" "policy_document" {
     resources = ["arn:aws:logs:*:*:*"]
   }
 }
-# Policy com permissão para Secrets Manager
+
 resource "aws_iam_policy" "policy" {
   name        = "secrets-manager-ecs-policy"
   path        = "/"
-  description = "Policy para o container acessar o Secrets Mnager, que contém as credenciais do Gitlab"
+  description = "Policy para o container acessar o Secrets Mnager, que contém as credenciais do registry"
 
   policy = data.aws_iam_policy_document.policy_document.json
 }
@@ -81,8 +79,8 @@ locals {
       }
       portMappings = [
         {
-          containerPort = 8080
-          hostPort      = 8080
+          containerPort = var.container_port
+          hostPort      = var.host_port
         }
       ]
       essential = true
@@ -97,18 +95,18 @@ locals {
 
         options = {
           awslogs-group = aws_cloudwatch_log_group.log_group.name
-          awslogs-region = "sa-east-1"
+          awslogs-region = var.region
           awslogs-stream-prefix = aws_cloudwatch_log_stream.log_stream.name
         }
       }
     }
   ]
-} 
-# TASK definition do container, necessita de uma role que consiga ler do secrets manager,
+}
+
 resource "aws_ecs_task_definition" "app_task_definition" {
   family = "${var.family}"
-  cpu = 1024
-  memory = 2048
+  cpu = "${var.cpu}"
+  memory = "${var.memory}"
   execution_role_arn = aws_iam_role.ecs_role.arn
   container_definitions = jsonencode(local.container_definitions)
 
@@ -121,10 +119,8 @@ resource "aws_ecs_task_definition" "app_task_definition" {
   }
 }
 
-# Cluster que será associado ao task set rodável
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "${var.ecs_cluster_name}"
-  # default vpc e subnets
 }
 
 resource "aws_ecs_service" "service" {
@@ -142,8 +138,8 @@ resource "aws_ecs_service" "service" {
   platform_version = "LATEST"
 
   network_configuration {
-    security_groups = "${var.security_group_ids}"
-    subnets         = "${var.subnet_ids}" #tem que ter HTTP/80 e HTTPS/443 liberados para acessar o secret manager
+    security_groups = "${var.security_group_ids}" # liberar porta 80/443
+    subnets         = "${var.subnet_ids}" 
     assign_public_ip = true
   }
 }
