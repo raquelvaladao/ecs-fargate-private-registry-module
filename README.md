@@ -50,7 +50,7 @@ terraform apply pl
 | region | Region em que os recursos serão criados.     |
 | access_key | Access key do user AWS que irá performar as ações desse repositório.     |
 | secret_key | Secret key do user AWS     |
-| gitlab_credentials | Username e Access Key do seu registry privado. eu usei o Gitlab.     |
+| registry_credentials | Username e Access Key do seu registry privado. eu usei o Gitlab.     |
 | app_name | Nome da task definition     |
 | container_port | Porta do container     |
 | host_port | Porta do host     |

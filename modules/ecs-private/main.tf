@@ -8,12 +8,19 @@ resource "aws_secretsmanager_secret" "container_registry_secret" {
 resource "aws_secretsmanager_secret_version" "container_registry_secret_data" {
   secret_id     = aws_secretsmanager_secret.container_registry_secret.id
   secret_string = jsonencode(var.registry_credentials)
+}
+
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
     principals {
       type = "Service"
       identifiers = [
         "ecs-tasks.amazonaws.com", "ecs.amazonaws.com"
       ]
     }
+  }
 }
 
 # ECS Role
@@ -61,7 +68,7 @@ resource "aws_iam_role_policy_attachment" "ecs_role_attachment" {
 }
 
 locals {
-  env_vars = jsondecode(file("${path.module}/env.json"))
+  env_vars = fileexists("${path.module}/env.json") ? jsondecode(file("${path.module}/env.json")) : null
 
   container_definitions = [
     {
@@ -83,6 +90,7 @@ locals {
           value = env.value
         }
       ]
+      environmentFiles = []
       logConfiguration = {
         logDriver = "awslogs"
 
