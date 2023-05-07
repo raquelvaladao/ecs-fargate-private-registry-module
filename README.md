@@ -28,6 +28,8 @@ Há um exemplo abaixo de inputs a se colocar no main.tf da pasta raíz desse rep
 terraform plan -out=pl
 terraform apply pl
 ```
+### Remote Backend
+- O backend padrão é S3, e para isso você precisa passar  as credenciais no terraform init.
 
 ## Recursos Criados
 
@@ -106,15 +108,7 @@ Listando e descrevendo as principais saídas fornecidas pelo module.
 ```
 também é possível não passar nenhum argumento.
 
-### Remote Backend
-  - A branch main tem guarda o tfstate local apenas.
-  - A branch remote-backend tem a opção de s3, e para isso você precisa passar o backend.conf no  terraform init
-  ```terraform
-  terraform init -backend-config=backend.conf
-  ```
-
 ## WIP.
 - [x] ECS Private Registry e CloudWatch Logs
-- [ ] CloudFront distribution
-- [ ] RDS
-- [ ] Cognito pool
+- [ ] CloudFront distribution + S3 frontend
+- [ ] RDS / Cognito pool
