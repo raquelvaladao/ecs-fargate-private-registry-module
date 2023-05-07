@@ -51,6 +51,14 @@ data "aws_iam_policy_document" "policy_document" {
         ]
     resources = ["arn:aws:logs:*:*:*"]
   }
+  statement { # perm download .env
+    effect = "Allow"
+    actions = [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+    ]
+    resources = [for arn in var.s3_env_file_arns: arn]
+  }
 }
 
 resource "aws_iam_policy" "policy" {
