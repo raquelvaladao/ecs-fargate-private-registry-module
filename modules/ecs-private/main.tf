@@ -1,7 +1,7 @@
 
 resource "aws_secretsmanager_secret" "container_registry_secret" {
-  name = "registry-credentials"
-  description = "Credenciais com permissão read_registry e write_registry"
+  name                    = "registry-credentials"
+  description             = "Credenciais com permissão read_registry e write_registry"
   recovery_window_in_days = 0
 }
 
@@ -25,39 +25,39 @@ data "aws_iam_policy_document" "assume_role_policy" {
 
 # ECS Role
 resource "aws_iam_role" "ecs_role" {
-  name = "ecs_role"
+  name               = "ecs_role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
 }
 
 # ECS Role Policy
 data "aws_iam_policy_document" "policy_document" {
   statement {
-    effect = "Allow"
+    effect    = "Allow"
     actions   = ["secretsmanager:GetSecretValue"]
     resources = [aws_secretsmanager_secret.container_registry_secret.arn]
   }
   statement {
     effect = "Allow"
-    actions   = [
-        "cloudwatch:GetMetricStatistics",
-        "cloudwatch:ListMetrics",
-        "cloudwatch:PutMetricData",
-        "ec2:DescribeTags",
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:DescribeLogStreams",
-        "logs:PutSubscriptionFilter",
-        "logs:PutLogEvents"
-        ]
+    actions = [
+      "cloudwatch:GetMetricStatistics",
+      "cloudwatch:ListMetrics",
+      "cloudwatch:PutMetricData",
+      "ec2:DescribeTags",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogStreams",
+      "logs:PutSubscriptionFilter",
+      "logs:PutLogEvents"
+    ]
     resources = ["arn:aws:logs:*:*:*"]
   }
   statement { # perm download .env
     effect = "Allow"
     actions = [
-        "s3:GetObject",
-        "s3:GetObjectVersion"
+      "s3:GetObject",
+      "s3:GetObjectVersion"
     ]
-    resources = [for arn in var.s3_env_file_arns: arn]
+    resources = [for arn in var.s3_env_file_arns : arn]
   }
 }
 
@@ -71,17 +71,17 @@ resource "aws_iam_policy" "policy" {
 
 # Attach da role com a policy
 resource "aws_iam_role_policy_attachment" "ecs_role_attachment" {
-  role = "${aws_iam_role.ecs_role.name}"
+  role       = aws_iam_role.ecs_role.name
   policy_arn = aws_iam_policy.policy.arn
 }
 
 locals {
-  env_vars = try(jsondecode(file("${path.module}/env.json")), null)
+  env_vars         = try(jsondecode(file("${path.module}/env.json")), null)
   s3_env_file_arns = try(var.s3_env_file_arns, null)
 
   container_definitions = [
     {
-      name = var.family
+      name  = var.family
       image = "${var.registry}:${var.image_version}"
       repositoryCredentials = {
         credentialsParameter = aws_secretsmanager_secret.container_registry_secret.arn
@@ -101,16 +101,16 @@ locals {
       ]
       environmentFiles = local.s3_env_file_arns == null ? null : [
         for arn in local.s3_env_file_arns : {
-          value  = arn
-          type   = "s3"
+          value = arn
+          type  = "s3"
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
 
         options = {
-          awslogs-group = aws_cloudwatch_log_group.log_group.name
-          awslogs-region = var.region
+          awslogs-group         = aws_cloudwatch_log_group.log_group.name
+          awslogs-region        = var.region
           awslogs-stream-prefix = aws_cloudwatch_log_stream.log_stream.name
         }
       }
@@ -119,10 +119,10 @@ locals {
 }
 
 resource "aws_ecs_task_definition" "app_task_definition" {
-  family = "${var.family}"
-  cpu = "${var.cpu}"
-  memory = "${var.memory}"
-  execution_role_arn = aws_iam_role.ecs_role.arn
+  family                = var.family
+  cpu                   = var.cpu
+  memory                = var.memory
+  execution_role_arn    = aws_iam_role.ecs_role.arn
   container_definitions = jsonencode(local.container_definitions)
 
   requires_compatibilities = ["FARGATE"]
@@ -135,13 +135,13 @@ resource "aws_ecs_task_definition" "app_task_definition" {
 }
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "${var.ecs_cluster_name}"
+  name = var.ecs_cluster_name
 }
 
 resource "aws_ecs_service" "service" {
-  name                = "${var.app_name}"
+  name                = var.app_name
   cluster             = aws_ecs_cluster.ecs_cluster.id
-  desired_count       = "${var.desired_count}"
+  desired_count       = var.desired_count
   task_definition     = aws_ecs_task_definition.app_task_definition.arn
   scheduling_strategy = "REPLICA"
 
@@ -149,12 +149,12 @@ resource "aws_ecs_service" "service" {
   deployment_maximum_percent         = 100
 
   force_new_deployment = true
-  launch_type = "FARGATE"
-  platform_version = "LATEST"
+  launch_type          = "FARGATE"
+  platform_version     = "LATEST"
 
   network_configuration {
-    security_groups = try(var.security_group_ids, jsondecode(var.security_group_ids)) # liberar porta 80/443
-    subnets         =  try(var.subnet_ids, jsondecode(var.subnet_ids))
+    security_groups  = try(var.security_group_ids, jsondecode(var.security_group_ids)) # liberar porta 80/443
+    subnets          = try(var.subnet_ids, jsondecode(var.subnet_ids))
     assign_public_ip = true
   }
 }
