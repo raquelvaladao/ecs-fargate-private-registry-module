@@ -145,8 +145,8 @@ resource "aws_ecs_service" "service" {
   platform_version = "LATEST"
 
   network_configuration {
-    security_groups = "${var.security_group_ids}" # liberar porta 80/443
-    subnets         = "${var.subnet_ids}" 
+    security_groups = try(var.security_group_ids, jsondecode(var.security_group_ids)) # liberar porta 80/443
+    subnets         =  try(var.subnet_ids, jsondecode(var.subnet_ids))
     assign_public_ip = true
   }
 }

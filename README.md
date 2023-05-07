@@ -106,6 +106,13 @@ Listando e descrevendo as principais saídas fornecidas pelo module.
 ```
 também é possível não passar nenhum argumento.
 
+### Remote Backend
+  - A branch main tem guarda o tfstate local apenas.
+  - A branch remote-backend tem a opção de s3, e para isso você precisa passar o backend.conf no  terraform init
+  ```terraform
+  terraform init -backend-config=backend.conf
+  ```
+
 ## WIP.
 - [x] ECS Private Registry e CloudWatch Logs
 - [ ] CloudFront distribution

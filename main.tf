@@ -10,6 +10,7 @@ terraform {
       version = "2.2.0"
     }
   }
+  backend "s3" {}
 }
 
 provider "aws" {
@@ -23,7 +24,6 @@ module "ecs-private" {
 
   region = "${var.region}"
 
-  # Task definition
   registry_credentials = "${var.registry_credentials}"
   app_name = "${var.app_name}"
   registry = "${var.registry}"
@@ -35,9 +35,8 @@ module "ecs-private" {
   memory = "${var.memory}"
   s3_env_file_arns = "${var.s3_env_file_arns}"
 
-  # Cluster
   ecs_cluster_name = "${var.ecs_cluster_name}"
-  # Service
+
   desired_count = "${var.desired_count}"
   subnet_ids = "${var.subnet_ids}"
   security_group_ids = "${var.security_group_ids}"

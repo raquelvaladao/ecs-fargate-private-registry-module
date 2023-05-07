@@ -1,11 +1,12 @@
 # Providers
 variable "access_key" {
   description = "Access key do seu usuário da AWS"
+  sensitive = true
 }
 variable "secret_key" {
   description = "Secret key do seu usuário da AWS"
+  sensitive = true
 }
-
 
 # ECS Task definition
 variable "registry_credentials" {
@@ -33,9 +34,11 @@ variable "app_name" {
 }
 variable "registry" {
   description = "URL do registry privado da aplicação"
+  sensitive = true
 }
 variable "family" {
   description = "Family da task definition"
+  default = "app-family"
 }
 variable "image_version" {
   description = "Versão da imagem do container no container registry"
@@ -53,10 +56,12 @@ variable "desired_count" {
 }
 variable "subnet_ids" {
   description = "Ids das suas subnets nas quais a tas será deployada"
+  type = list(string)
   default = []
 }
 variable "security_group_ids" {
   description = "Ids dos security groups utilizados"
+  type = list(string)
   default = []
 }
 variable "region" {
