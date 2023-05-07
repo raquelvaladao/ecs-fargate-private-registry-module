@@ -2,7 +2,6 @@ modules/ecs-private/env.json
 variables.auto.tfvars
 variables.tfvars
 *terraform*
-.terraform.lock.hcl
 *.conf
 *.sh
 *plan*
