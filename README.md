@@ -1,84 +1,90 @@
-# Container no ECS/Fargate com Private Registry e logs no CloudWatch
+🇧🇷 [Português (Brasil)](README-pt.md) 
 
-Este é um módulo para subir um service de ECS-Fargate funcional e rodando no ECS a partir de uma imagem de um registry privado, com a configuração adequada de logs no CloudWatch Logs do container.
+🇺🇸 [English (United States)](README.md)
 
-Meu caso de uso é o Gitlab Private Registry, mas voce pode usar o username, password e URL do seu provedor.
 
-Fiz esse projeto para automatizar a criação de um side-project pessoal meu em Java, containerizado, feito completamente na AWS. Nesse ponto, há aqui nesse repo apenas a parte de backend, mas pretendo estendê-la  para o resto da infra no futuro.
+# Container on ECS/Fargate with Private Registry and logs on CloudWatch
 
-## Sumário
-- [Pré-requisitos](#pré-requisitos)
-- [Uso](#uso)
-- [Recursos Criados](#recursos-criados)
+This is a module to upload a functional ECS-Fargate service running on ECS from an image of a private registry, with the proper configuration of logs in the container's CloudWatch Logs.
+
+My use case is Gitlab Private Registry, but you can use your provider's username, password and URL.
+
+I made this project to automate the creation of a personal side-project of mine in Java, containerized, made completely on AWS. At this point, there is only the backend part here in this repo, but I intend to extend it to the rest of the infrastructure in the future.
+
+## Summary
+- [Prerequisites](#Prerequisites)
+- [Usage](#usage)
+- [Resources Created](#resources-created)
 - [Inputs](#inputs)
 - [Outputs](#outputs)
-- [Exemplo TFVARS](#exemplo-tfvars)
-- [Observações](#observações)
+- [Example TFVARS](#example-tfvars)
+- [Notes](#notes)
 
-## Pré-requisitos
+## Prerequisites
 
-- Conta na AWS com as permissões adequadas para ECS, IAM, Secrets Manager, CloudWatch Logs.
-- Username, password e URL do registry privado que possui a imagem do container
+- AWS account with proper permissions for ECS, IAM, Secrets Manager, CloudWatch Logs.
+- Username, password and URL of the private registry that owns the container image
 - Terraform
 
-## Uso
+## Usage
 
-Há um exemplo abaixo de inputs a se colocar no main.tf da pasta raíz desse repositório, ou em um arquivo .tfvars. Além disso, todas as variáveis de variables.tf possuem descrição. Depois que preenchê-las, é só aplicar
-```terraform
+There is an example below of entries to place in the main.tf of the root folder of this repository, or in a .tfvars file. Also, all variables in variables.tf have a description. After filling them in, just apply
+``` terraform
 terraform plan -out=pl
 terraform apply pl
 ```
 ### Remote Backend
-- O backend padrão é S3, e para isso você precisa passar  as credenciais no terraform init.
+- The default backend is S3, and for that you need to pass credentials in terraform init.
 
-## Recursos Criados
+## Resources Created
 
-| Recurso   | Descrição                   |
+| Resource | Description |
 | --------- | --------------------------- |
-| Task definition | Definições do grupo de containers      |
-| Service definition | Definições de service (a plataforma é Fargate). Eu usei subnets públicas. É preciso fazer alterações caso você use subnets privadas.      |
-| Cluster definition | Definição do cluster que receberá a service.      |
-| Log group | Grupo de logs referente à task definition     |
-| Log stream | Stream de logs referente à task definition     |
-| Secret | Credenciais do seu registry privado. A AWS obriga que sejam salvas em um secret      |
-| Policy | Policy do ECS      |
-| Role | Role do ECS, que contém a policy      |
+| Task definition | Container Group Definitions |
+| Service definition | Service definitions (platform is Fargate). I used public subnets. Changes need to be made if you use private subnets. |
+| cluster definition | Definition of the cluster that will receive the service. |
+| log group | Group of logs referring to the task definition |
+| logstream | Stream of logs referring to the task definition |
+| Secret | Credentials from your private registry. AWS requires that they be saved in a secret |
+| Policy | ECS Policy |
+| Scroll | ECS role, which contains the policy |
+
 
 ## Inputs
-### A descrição e formato das variáveis está em variables.tf
+### Variable description and format is in variables.tf
 
-| Variável   | Descrição                   |
+| Variable | Description |
 | ---------- | --------------------------- |
-| region | Region em que os recursos serão criados.     |
-| access_key | Access key do user AWS que irá performar as ações desse repositório.     |
-| secret_key | Secret key do user AWS     |
-| registry_credentials | Username e Access Key do seu registry privado. eu usei o Gitlab.     |
-| app_name | Nome da task definition     |
-| container_port | Porta do container     |
-| host_port | Porta do host     |
-| cpu | CPU Units do container     |
-| memory | Memória em MiB do container     |
-| s3_env_file_arns | Lista de ARNs dos arquivos .env que serão passados ao container. Opcional     |
-| registry | URL do registry privado em que está a imagem do container     |
-| image_version | version da imagem do container no registry. A mudança de image_version com o uso de terraform apply já faz o redeploy automaticamente     |
-| family | Nome da family     |
-| ecs_cluster_name | Nome do cluster     |
-| desired_count | Qtd de containers     |
-| subnet_ids | ids das subnets em que os containers serão deployados     |
-| security_group_ids | ids dos security groups em que os containers serão deployados. Precisam da porta 80/443 liberadas no caso de subnet pública     |
- 
-## Exemplo TFVARS
-```terraform
+| region | Region in which the resources will be created. |
+| access_key | Access key of the AWS user that will perform the actions of this repository. |
+| secret_key | AWS user secret key |
+| registry_credentials | Username and Access Key of your private registry. I used Gitlab. |
+| app_name | Task definition name |
+| container_port | Container door |
+| host_port | Host Port |
+| cpu | Container's CPU Units |
+| memory | Container MiB memory |
+| s3_env_file_arns | List of ARNs of .env files that will be passed to the container. Optional |
+| registry | URL of the private registry where the container image is |
+| image_version | version of the container image in the registry. Changing the image_version using terraform apply automatically redeploys |
+| family | Family name |
+| ecs_cluster_name | Cluster Name |
+| desired_count | Qty of containers |
+| subnet_ids | ids of the subnets where the containers will be deployed |
+| security_group_ids | ids of the security groups in which the containers will be deployed. Need port 80/443 released in case of public subnet |
+
+## Example TFVARS
+``` terraform
 registry_credentials = {
   username = "username"
-  password = "access_key_or_password"
+  password="access_key_or_password"
 }
-registry = "registry.gitlab.com/xxx/app/name"
-family = "app-family"
+registry="registry.gitlab.com/xxx/app/name"
+family="app-family"
 app_name = "app-name"
-access_key = "XXX"
-secret_key = "XXX"
-image_version = "0.0.1"
+access_key="XXX"
+secret_key="XXX"
+image_version="0.0.1"
 desired_count = 1
 subnet_ids = ["subnet-XXX"]
 security_group_ids = ["sg-XXX"]
@@ -87,17 +93,17 @@ ecs_cluster_name = "app-cluster"
 
 ## Outputs
 
-Listando e descrevendo as principais saídas fornecidas pelo module.
+Listing and describing the main outputs provided by the module.
 
-| Saída     | Descrição                   |
+| Output | Description |
 | --------- | --------------------------- |
-| ecs_policy   | Policy atachada no ECS para acesso ao Secrets Manager e CloudWatch Logs      |
-| task_revision  | Revision do service que será deployado no apply        |
-| container_definitions  | Resultado do task_definitions.json. Está marcado como *sensitive* |
+| ecs_policy | Policy attached to ECS for access to Secrets Manager and CloudWatch Logs |
+| task_revision | Revision of the service that will be deployed in apply |
+| container_definitions | Output from task_definitions.json. It is marked *sensitive* |
 
 
-## Observações
-- variáveis de ambiente passadas pra o container podem ser definidas na variable **s3_env_file_arns**, como lista dos ARNs dos env files no seu S3 e/ou em um arquivo **./modules/ecs-private/env.json**, opcionalmente, na forma
+## Comments
+- environment variables passed to the container can be defined in the variable **s3_env_file_arns**, such as list of ARNs of env files on your S3 and/or in a file **./modules/ecs-private/env.json** , optionally, in the form
 ```json
 [
     {
@@ -106,9 +112,9 @@ Listando e descrevendo as principais saídas fornecidas pelo module.
     }
 ]
 ```
-também é possível não passar nenhum argumento.
+it is also possible not to pass any arguments.
 
 ## WIP.
-- [x] ECS Private Registry e CloudWatch Logs
+- [x] ECS Private Registry and CloudWatch Logs
 - [ ] CloudFront distribution + S3 frontend
 - [ ] RDS / Cognito pool
